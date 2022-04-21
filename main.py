@@ -193,7 +193,8 @@ class FiniteAutomaton(object):
         self.states = states
         self.input_symbols = input_symbols
         self.initial_state = initial_state
-        self.acceptance_states = acceptance_states
+        self.acceptance_states = acceptance_states.keys()
+        self.acceptance_dictionary = acceptance_states
         self.transition_function = transition_function
         self.delimiters = ['9', '32']
 
@@ -229,20 +230,72 @@ class FiniteAutomaton(object):
         # 0 is the initial state of the DFA
         current_state = 0
 
-        next_states = set()
         tokens = []
         current_iterating_string = ''
         current_acceptance_string = ''
+        blank_spaces = 0
 
         while len(character_list) > 0:
+            # Iterates through all characters
             for character in character_list:
+
+                # Updates the transitions and iterating string
                 current_transitions = self.transition_function[current_state]
-                current_iterating_string += character
-                if current_iterating_string in self.input_symbols:
-                    # TODO: make transition
-                    pass
+                current_iterating_string += chr(int(character))
+
+                # If character is in the input symbols
+                if character in self.input_symbols:
+                    # State on the transition list
+                    attempted_state = current_transitions[self.input_symbols.index(character)]
+
+                    # No transitions
+                    if attempted_state is None:
+                        if current_state != 0:
+                            break
+                        blank_spaces += 1
+                        continue
+                    # There is a transition
+                    else:
+                        current_state = attempted_state
+                        if current_state in self.acceptance_states:
+                            current_acceptance_string = current_iterating_string
 
 
+                # Delimiters (space or tabs between tokens)
+                elif character in self.delimiters and current_state == 0:
+                    print('adding blank space!!!!!')
+                    current_iterating_string = current_iterating_string[1::]
+                    blank_spaces += 1
+                    continue
+
+                # Not a valid character
+                else:
+                    print('breaking with', current_acceptance_string)
+                    break
+
+            # Tokens were found
+            if len(current_acceptance_string) > 0:
+                tokens.append(f"{current_acceptance_string}, {self.acceptance_dictionary[current_state]}")
+                # Remove iterated characters
+                character_list = character_list[len(current_acceptance_string) + blank_spaces::]
+
+                # Restart token reading parameters
+                current_iterating_string = ''
+                current_acceptance_string = ''
+                current_state = 0
+                blank_spaces = 0
+            # No tokens found
+            else:
+                tokens.append(f"TOKEN INVÁLIDO {''.join(character_list)}")
+                return False, tokens
+
+        if len(tokens) > 0:
+            return True, tokens
+        elif current_state in self.acceptance_states:
+            return True, tokens
+
+        tokens.append(f"TOKEN INVÁLIDO {''.join(character_list)}")
+        return False, tokens
 
 
         # while len(string) > 0:
@@ -341,7 +394,7 @@ def build_DFA(syntactic_tree, next_pos_dict, symbols, acceptance_indexes):
 
     for index in states[0]:
         if index in list(acceptance_indexes.keys()):
-            if 0 not in list(acceptance_states.keys()) or "'" in acceptance_indexes[index]:
+            if 0 not in list(acceptance_states.keys()) or "~" in acceptance_indexes[index]:
                 acceptance_states[0] = acceptance_indexes[index]
 
     while len(states) > 0:
@@ -383,7 +436,7 @@ def direct_dfa_construction(regular_expression):
 
 
 def read_file_characters():
-    file = open('test.txt', 'r', encoding='utf-8')
+    file = open('ArchivoPrueba1Entrada.txt', 'r', encoding='utf-8')
     characters = []
     for line in file:
         for character in line:
@@ -396,7 +449,5 @@ def read_file_characters():
 
 
 a = ['a']
-c = a.index('b')
-print(c)
 # # TODO: Figure out what to do in these cases
 # direct_dfa_construction('(aB+).#|(aB).#')
