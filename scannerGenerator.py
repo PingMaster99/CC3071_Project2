@@ -2,8 +2,6 @@
 from main import *
 
 
-def print_error(line, message):
-    print(f'[ERROR, LINE {line}] {message}')
 
 class Compiler:
     def __init__(self):
@@ -12,17 +10,23 @@ class Compiler:
         self.name = ''
         self.keywords = {}
         self.tokens = {}
-        self.errors = []
+        self.has_errors = False
+
+    def print_error(self, line, message):
+        print(f'[ERROR, LINE {line}] {message}')
+        self.has_errors = True
 
     def check_element_compatibility(self, element, line, keyword):
         if '=' not in element:
-            print_error(line, f"'=' sign not present in {keyword} definition")
+            self.print_error(line, f"'=' sign not present in {keyword} definition")
+            return False
         elif '.' not in element[-1]:
-            print_error(line, "'.' not present at line end")
+            self.print_error(line, "'.' not present at line end")
+            return False
+        return True
 
 
     def handle_keyword(self, keyword_list, data):
-        # TODO: ADD ERROR LINE
         keyword = keyword_list[0]
         print('handling... :)', keyword)
 
@@ -31,26 +35,63 @@ class Compiler:
             if len(keyword_list) == 2:
                 self.name = keyword_list[1]
             else:
-                print_error(data.pop(), "Invalid definition in COMPILER")
+                self.print_error(data.pop(), "Invalid definition in COMPILER")
             pass
         elif keyword == 'CHARACTERS':
 
             for element in data:
+                element_characters = []
+                print('handling element', element)
                 line = element.pop()
-                self.check_element_compatibility(element, line, 'CHARACTER')
+                if not self.check_element_compatibility(element, line, 'CHARACTER'):
+                    continue
+                identifier = element.pop(0)
 
-                if len(element) == 3:
-                    identifier, equal, definition = element
-                    character_list = []
+                # Pops the equal sign
+                element.pop(0)
 
-                    for char in definition[0: len(definition) - 1].replace('"', ""):
-                        character_list.append(str(ord(char)))
+                addition = True
 
-                    definition = f"({'|'.join(character_list)})"
-                    self.characters[identifier] = definition
+                while len(element) > 0:
+                    current_expression = element.pop(0)
+                    print("CURRENT EXPRESSION", current_expression)
+
+                    if current_expression == '-':
+                        addition = False
+                    elif current_expression == '+':
+                        addition = True
+
+                    if len(element) == 0:
+                        # Deletes the final point
+                        current_expression = current_expression[0:len(current_expression) - 1]
+
+                    if current_expression[0] == '"' and current_expression.count('"') == 2:
+                        current_definition = []
+                        for char in current_expression[0: len(current_expression) - 1].replace('"', ""):
+                            current_definition.append(str(ord(char)))
+                        if addition:
+                            element_characters += current_definition
+                        else:
+                            element_characters -= current_definition
+
+                    elif current_expression in list(self.characters.keys()):
+                        if addition:
+                            element_characters += self.characters[current_expression]
+                        else:
+                            element_characters -= self.characters[current_expression]
+                    elif 'CHR' in current_expression:
+                        if addition:
+                            element_characters += [current_expression.replace('CHR(', '').replace(')', '')]
+                        else:
+                            element_characters -= [current_expression.replace('CHR(', '').replace(')', '')]
+
+                    # Removes duplicate characters
+                    element_characters = list(set(element_characters))
+                    element_characters.sort()
+
+                    self.characters[identifier] = element_characters
 
             print('CHARACTERSSSS', self.characters)
-
 
         elif keyword == 'KEYWORDS':
             for element in data:
@@ -68,6 +109,8 @@ class Compiler:
                     definition = f"({'.'.join(character_list)}).#~[{identifier}]~"
 
                     self.keywords[identifier] = definition
+                else:
+                    self.print_error(line, 'Invalid KEYWORD definition')
 
         elif keyword == 'TOKENS':
             for element in data:
@@ -81,18 +124,57 @@ class Compiler:
                 if len(element) > 3:
                     concatenated_element = []
                     for i in range(2, len(element)):
-                        concatenated_element.insert(0, element.pop())
+                        current_element = element.pop()
+                        concatenated_element.insert(0, current_element)
                     concatenated_element = '.'.join(concatenated_element)
                     element.append(concatenated_element)
 
                 if len(element) == 3:
                     identifier, equal, definition = element
-                    definition = definition[0: len(definition) - 1].replace('"', "")
-                    for key in self.characters.keys():
-                        if key in definition:
-                            definition = definition.replace(key, self.characters[key]).replace('{', '(').replace('}', ')*').replace(')(', ').(').replace('*(', '*.(').replace('*(', '*.(')
+                    definition = definition[0: len(definition) - 1]
+                    keys_present = True
+                    current_accepted_key = ''
+
+                    while keys_present:
+                        for key in self.characters.keys():
+                            if key in definition:
+                                if len(current_accepted_key) < len(key):
+                                    current_accepted_key = key
+                        if len(current_accepted_key) > 0:
+                            definition = definition.replace(current_accepted_key, f"({'|'.join(self.characters[current_accepted_key])})").replace('{', '(').replace('}', ')*').replace(')(', ').(').replace('*(', '*.(').replace('*(', '*.(')
+                            current_accepted_key = ''
+                        else:
+                            break
+
+                    # TODO: Replace everything within "" to a regexp
+                    while '"' in definition:
+                        first_index = definition.find('"')
+                        definition = definition.replace('"', '', 1)
+                        second_index = definition.find('"')
+                        definition = definition.replace('"', '', 1)
+                        print(first_index, second_index, "INDICES")
+
+                        if second_index == -1:
+                            self.print_error(line, 'Missing quotation on TOKEN definition')
+                        else:
+
+                            print(definition[:first_index])
+                            print(definition[second_index:], "WOW")
+                            print(definition[first_index:second_index])
+                            character_list = []
+                            for character in definition[first_index:second_index]:
+                                character_list.append(str(ord(character)))
+
+                            definition = (definition[:first_index] + f"({'.'.join(character_list)})" + definition[second_index:]).replace('*(', '*.(')
+                            print("REPLACED DEFINITION", definition)
+                        break
+
+
+
+
 
                     definition = f'({definition}).#[{identifier}]'
+                    print('setting definition as', definition)
                     self.tokens[identifier] = definition
 
         elif keyword == 'PRODUCTIONS':
@@ -101,6 +183,8 @@ class Compiler:
 
         elif keyword == 'END':
             final_regexp = ''
+            final_character_list = []
+
             constructions = list(self.keywords.values()) + list(self.tokens.values())
             for construction in constructions:
                 final_regexp += f'{construction}|'
@@ -108,25 +192,52 @@ class Compiler:
             if final_regexp[-1] == '|':
                 final_regexp = final_regexp[0: len(final_regexp) - 1]
 
-            automaton = direct_dfa_construction(final_regexp)
-            valid, tokens = automaton.match_tokens(read_file_characters())
-            print(tokens)
+            print("FINAL REGEX", final_regexp)
+            if not self.has_errors:
+                automaton = direct_dfa_construction(final_regexp)
+                valid, tokens = automaton.match_tokens(read_file_characters())
+                print(tokens)
+            else:
+                raise Exception("COCO File Exception: could not build compiler, check logs")
 
             pass
 
         return errors
 
 
+def add_character_spacing(line, character):
+    found_index = 0
+    while found_index != -1:
+        found_index = line.find(character, found_index)
+        print(found_index)
+        if line[0:found_index].count('"') % 2 == 0:
+            line = line[:found_index] + f' {character} ' + line[found_index + 1:]
+        if found_index == -1:
+            break
+        found_index += 2
+
 def read_file(filename):
     compiler = Compiler()
     with open(filename, encoding='utf-8') as file:
         lines = file.readlines()
     clean_lines = []
+    character_mode = False
 
     # Removes leading + trailing whitespaces and removes \n
     for line in lines:
-        line = line.strip().rstrip('\n').replace('=', ' = ', 1).split()
 
+        if ['CHARACTERS'] == line.split():
+            character_mode = True
+        elif ['KEYWORDS'] == line.split() or ['TOKENS'] == line.split():
+            character_mode = False
+        if '+' in line and character_mode:
+            add_character_spacing(line, '+')
+        if '-' in line and character_mode:
+            add_character_spacing(line, '-')
+        if '..' in line and character_mode:
+            add_character_spacing(line, '..')
+
+        line = line.strip().rstrip('\n').replace('=', ' = ', 1).split()
         clean_lines.append(line)
 
     # We can now work with the clean lines
@@ -176,4 +287,4 @@ def read_file(filename):
 # TODO: Make automaton file
 # TODO: make edge cases solvable
 # TODO: Check errors
-read_file('ArchivoPrueba1.atg')
+read_file('ArchivoPrueba2.atg')

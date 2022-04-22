@@ -7,7 +7,6 @@ digito = "01234567890".
 digitoHex = digito + "ABCDEF".
 tab = CHR(9).
 
-
 KEYWORDS
 
 si = "if".

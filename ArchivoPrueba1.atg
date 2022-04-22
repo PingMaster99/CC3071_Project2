@@ -8,6 +8,7 @@ digito = "01".
 KEYWORDS
 
 if = "if".
+while = "while".
 
 TOKENS
 

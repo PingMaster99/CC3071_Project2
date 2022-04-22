@@ -250,6 +250,7 @@ class FiniteAutomaton(object):
 
                     # No transitions
                     if attempted_state is None:
+                        print('THERE IS NO TRANSITION WITH', character)
                         if current_state != 0:
                             break
                         blank_spaces += 1
@@ -263,14 +264,12 @@ class FiniteAutomaton(object):
 
                 # Delimiters (space or tabs between tokens)
                 elif character in self.delimiters and current_state == 0:
-                    print('adding blank space!!!!!')
                     current_iterating_string = current_iterating_string[1::]
                     blank_spaces += 1
                     continue
 
                 # Not a valid character
                 else:
-                    print('breaking with', current_acceptance_string)
                     break
 
             # Tokens were found
@@ -380,7 +379,7 @@ class FiniteAutomaton(object):
 
 
 def build_DFA(syntactic_tree, next_pos_dict, symbols, acceptance_indexes):
-    print('building DFA with', syntactic_tree, next_pos_dict, acceptance_indexes)
+    print('building DFA with', syntactic_tree, next_pos_dict, acceptance_indexes) 
 
     next_position_keys = list(next_pos_dict.keys())
 
@@ -418,7 +417,6 @@ def build_DFA(syntactic_tree, next_pos_dict, symbols, acceptance_indexes):
 
             for index in building_state:
                 if index in list(acceptance_indexes.keys()):
-                    print('setting accpetance state with index', acceptance_indexes[index])
                     if all_states.index(building_state) not in list(acceptance_states.keys()) or "'" in acceptance_indexes[index]:
                         acceptance_states[all_states.index(building_state)] = acceptance_indexes[index]
         transition_function.append(row_transitions)
@@ -436,11 +434,10 @@ def direct_dfa_construction(regular_expression):
 
 
 def read_file_characters():
-    file = open('ArchivoPrueba1Entrada.txt', 'r', encoding='utf-8')
+    file = open('ArchivoPrueba2Entrada.txt', 'r', encoding='utf-8')
     characters = []
     for line in file:
         for character in line:
-            print(character, str(ord(character)))
             characters.append(str(ord(character)))
     print(characters)
 
