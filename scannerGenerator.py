@@ -114,6 +114,7 @@ class Compiler:
 
         elif keyword == 'TOKENS':
             for element in data:
+                print('TOKEN ELEMENT', element)
                 line = element.pop()
                 self.check_element_compatibility(element, line, 'TOKEN')
 
@@ -146,7 +147,6 @@ class Compiler:
                         else:
                             break
 
-                    # TODO: Replace everything within "" to a regexp
                     while '"' in definition:
                         first_index = definition.find('"')
                         definition = definition.replace('"', '', 1)
@@ -165,17 +165,15 @@ class Compiler:
                             for character in definition[first_index:second_index]:
                                 character_list.append(str(ord(character)))
 
-                            definition = (definition[:first_index] + f"({'.'.join(character_list)})" + definition[second_index:]).replace('*(', '*.(')
+                            definition = (definition[:first_index] + f"({'.'.join(character_list)})" + definition[second_index:]).replace('*(', '*.(').replace(')(', ').(')
                             print("REPLACED DEFINITION", definition)
                         break
-
-
-
-
 
                     definition = f'({definition}).#[{identifier}]'
                     print('setting definition as', definition)
                     self.tokens[identifier] = definition
+
+                    print(definition, ' THE DEFINITION')
 
         elif keyword == 'PRODUCTIONS':
             # Doing this on the third project
@@ -287,4 +285,4 @@ def read_file(filename):
 # TODO: Make automaton file
 # TODO: make edge cases solvable
 # TODO: Check errors
-read_file('ArchivoPrueba2.atg')
+read_file('ArchivoPrueba3.atg')

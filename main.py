@@ -245,12 +245,13 @@ class FiniteAutomaton(object):
 
                 # If character is in the input symbols
                 if character in self.input_symbols:
+                    print('TRANSITION WITH', character)
                     # State on the transition list
                     attempted_state = current_transitions[self.input_symbols.index(character)]
 
                     # No transitions
                     if attempted_state is None:
-                        print('THERE IS NO TRANSITION WITH', character)
+                        print('THERE IS NO TRANSITION WITH', character, chr(int(character)))
                         if current_state != 0:
                             break
                         blank_spaces += 1
@@ -434,7 +435,7 @@ def direct_dfa_construction(regular_expression):
 
 
 def read_file_characters():
-    file = open('ArchivoPrueba2Entrada.txt', 'r', encoding='utf-8')
+    file = open('ArchivoPrueba3Entrada.txt', 'r', encoding='utf-8')
     characters = []
     for line in file:
         for character in line:
