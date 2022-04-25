@@ -245,13 +245,11 @@ class FiniteAutomaton(object):
 
                 # If character is in the input symbols
                 if character in self.input_symbols:
-                    print('TRANSITION WITH', character)
                     # State on the transition list
                     attempted_state = current_transitions[self.input_symbols.index(character)]
 
                     # No transitions
                     if attempted_state is None:
-                        print('THERE IS NO TRANSITION WITH', character, chr(int(character)))
                         if current_state != 0:
                             break
                         blank_spaces += 1
@@ -275,7 +273,7 @@ class FiniteAutomaton(object):
 
             # Tokens were found
             if len(current_acceptance_string) > 0:
-                tokens.append(f"{current_acceptance_string}, {self.acceptance_dictionary[current_state]}")
+                tokens.append([current_acceptance_string, self.acceptance_dictionary[current_state]])
                 # Remove iterated characters
                 character_list = character_list[len(current_acceptance_string) + blank_spaces::]
 
@@ -295,56 +293,6 @@ class FiniteAutomaton(object):
             return True, tokens
 
         tokens.append(f"TOKEN INVÁLIDO {''.join(character_list)}")
-        return False, tokens
-
-
-        # while len(string) > 0:
-        #     for character in string:
-        #         current_iterating_string += character
-        #         for c in current:
-        #             # If state has a transition with the current character
-        #             if c.identifier1 == character:
-        #                 if self.is_deterministic:
-        #                     next_states = {c.edge1}
-        #                 else:
-        #                     next_states |= self.epsilon_closure(c.edge1)
-        #             elif c.identifier2 == character:
-        #                 if self.is_deterministic:
-        #                     next_states = {c.edge2}
-        #                 else:
-        #                     next_states |= self.epsilon_closure(c.edge2)
-        #             elif self.is_deterministic:
-        #                 break
-        #         current = next_states
-        #         next_states = set()
-        #
-        #         for state in self.acceptance_states:
-        #             if state in current:
-        #                 current_acceptance_string = current_iterating_string
-        #                 break
-        #     # If after iterating through the whole string we get an acceptance string
-        #     if len(current_acceptance_string) > 0:
-        #         tokens.append(current_acceptance_string)
-        #         string = string[len(current_acceptance_string)::]
-        #         current_iterating_string = ''
-        #         current_acceptance_string = ''
-        #         current = self.epsilon_closure(self.initial_state)
-        #     # No acceptance strings
-        #     else:
-        #         tokens.append('EXPRESIÓN INVÁLIDA, Tokens inválidos ->')
-        #         tokens.append(string)
-        #         return False, tokens
-        #
-        # if len(tokens) > 0:
-        #     return True, tokens
-        # else:
-        #     for state in self.acceptance_states:
-        #         if state in current:
-        #             return True, tokens
-        #
-        # tokens.append('EXPRESIÓN INVÁLIDA, Tokens inválidos ->')
-        # tokens.append(string)
-        # return False, tokens
 
     def display(self):
         """
@@ -380,7 +328,6 @@ class FiniteAutomaton(object):
 
 
 def build_DFA(syntactic_tree, next_pos_dict, symbols, acceptance_indexes):
-    print('building DFA with', syntactic_tree, next_pos_dict, acceptance_indexes) 
 
     next_position_keys = list(next_pos_dict.keys())
 
@@ -421,10 +368,8 @@ def build_DFA(syntactic_tree, next_pos_dict, symbols, acceptance_indexes):
                     if all_states.index(building_state) not in list(acceptance_states.keys()) or "'" in acceptance_indexes[index]:
                         acceptance_states[all_states.index(building_state)] = acceptance_indexes[index]
         transition_function.append(row_transitions)
-        print(acceptance_states)
     automaton = FiniteAutomaton(automaton_states, symbols, 0, acceptance_states, transition_function)
 
-    print('the transition function is', transition_function, 'states', automaton_states, 'characters', symbols, 'acceptance states', acceptance_states)
     return automaton
 
 
@@ -434,15 +379,7 @@ def direct_dfa_construction(regular_expression):
     return build_DFA(tree, next_position, symbols, acceptance_states)
 
 
-def read_file_characters():
-    file = open('ArchivoPrueba3Entrada.txt', 'r', encoding='utf-8')
-    characters = []
-    for line in file:
-        for character in line:
-            characters.append(str(ord(character)))
-    print(characters)
 
-    return characters
 
 
 
