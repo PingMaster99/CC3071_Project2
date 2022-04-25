@@ -189,7 +189,6 @@ class FiniteAutomaton(object):
     """
 
     def __init__(self, states, input_symbols, initial_state, acceptance_states, transition_function):
-        # TODO: If space or tab (32, 9) comes and is in state zero, continue to next char
         self.states = states
         self.input_symbols = input_symbols
         self.initial_state = initial_state
@@ -293,6 +292,7 @@ class FiniteAutomaton(object):
             return True, tokens
 
         tokens.append(f"TOKEN INVÁLIDO {''.join(character_list)}")
+        return False, tokens
 
     def display(self):
         """
@@ -377,12 +377,3 @@ def direct_dfa_construction(regular_expression):
     postfix_expression = infix_to_postfix(f'{regular_expression}')
     tree, next_position, symbols, acceptance_states = postfix_to_tree(postfix_expression)
     return build_DFA(tree, next_position, symbols, acceptance_states)
-
-
-
-
-
-
-a = ['a']
-# # TODO: Figure out what to do in these cases
-# direct_dfa_construction('(aB+).#|(aB).#')
