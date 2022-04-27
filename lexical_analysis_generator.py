@@ -1,6 +1,6 @@
 # encoding utf-8
 import os
-from main import *
+from lexer_backend import direct_dfa_construction
 from os import path, remove
 
 AUTOMATON_STRING = """
@@ -410,6 +410,8 @@ def read_file_characters():
     file = open('ArchivoPrueba3Entrada.txt', 'r', encoding='utf-8')
     characters = []
     for line in file:
+        if line.replace(" ", "")[0:2] == '//':
+            continue
         for character in line:
             characters.append(str(ord(character)))
 

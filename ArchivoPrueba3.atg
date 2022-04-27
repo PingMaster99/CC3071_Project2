@@ -8,6 +8,8 @@ digitoHex = digito + "ABCDEF".
 enBlanco = CHR(9) + CHR(32).
 comillas = CHR(34).
 cualquiera = letra + digito + enBlanco.
+newline = CHR(10).
+null = CHR(0).
 
 
 KEYWORDS
@@ -17,9 +19,11 @@ para = "for".
 mientras = "while".
 MIENTRAS = "WHILE".
 Mientras = "While".
+null = "null".
 
 TOKENS
 
+null = null.
 identificador = letra{letra|digito} EXCEPT KEYWORDS.
 numero = digito{digito}.
 numeroDecimal = digito{digito}"."digito{digito}.
