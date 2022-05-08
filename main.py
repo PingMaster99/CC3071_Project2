@@ -1,6 +1,7 @@
 # coding: utf8
 from lexical_analysis_generator import Compiler, read_file
 
+
 def get_main_input(motive):
     return input(f"Introduzca el nombre del archivo para {motive} o 'salir' para salir\n>>")
 
@@ -9,8 +10,8 @@ def main():
     compiler = Compiler()
     valid_file = False
     while True:
-        # file = get_main_input('generar el analizador léxico')
-        file = 'ArchivoPrueba1.atg'
+        file = get_main_input('generar el analizador léxico')
+        # file = 'ArchivoPrueba3.atg'
         if file == 'salir':
             break
         try:
@@ -22,8 +23,8 @@ def main():
 
         if valid_file:
             print(f"Se ha generado el archivo {compiler.name}.py con su analizador léxico!")
-            # file = get_main_input('obtener los tokens')
-            file = 'ArchivoPrueba1Entrada.txt'
+            file = get_main_input('obtener los tokens')
+            # file = 'ArchivoPrueba3Entrada.txt'
             if file == 'salir':
                 break
             try:
@@ -33,9 +34,8 @@ def main():
                 valid_file = False
             except FileNotFoundError:
                 print("Archivo no encontrado, recuerde incluir la extensión\n")
-        # TODO: Remove after testing
-        break
     print("Gracias por haber utilizado el generador de analizadores léxicos, que tenga un feliz día :)")
+
 
 if __name__ == '__main__':
     main()

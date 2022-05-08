@@ -8,8 +8,6 @@ digitoHex = digito + "ABCDEF".
 enBlanco = CHR(9) + CHR(32).
 comillas = CHR(34).
 cualquiera = letra + digito + enBlanco.
-newline = CHR(10).
-null = CHR(0).
 
 
 KEYWORDS
