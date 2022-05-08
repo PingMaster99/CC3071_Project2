@@ -192,8 +192,8 @@ class Compiler:
             if not self.has_errors:
                 automaton = direct_dfa_construction(final_regexp)
 
-
-                file_content = f"""# GENERATED FILE FOR COMPILER {self.name}
+                file_content = f"""# coding: utf8
+# GENERATED FILE FOR COMPILER {self.name}
 class FiniteAutomaton(object):
     # Models finite automatons
 
