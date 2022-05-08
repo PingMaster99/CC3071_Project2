@@ -226,7 +226,14 @@ class FiniteAutomaton(object):
 
                     # No transitions
                     if attempted_state is None:
-                        if current_state != 0:
+                        # Non tokens
+                        if (current_state != 0 or character not in self.delimiters) and len(current_acceptance_string) == 0:
+                            tokens.append(['INVALID', current_iterating_string])
+                            character_list = character_list[len(current_iterating_string)::]
+                            current_iterating_string = ''
+                            break
+                        # Delimiter that might be in the alphabet
+                        elif current_state != 0:
                             break
                         blank_spaces += 1
                         continue
