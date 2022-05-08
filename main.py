@@ -10,7 +10,7 @@ def main():
     valid_file = False
     while True:
         # file = get_main_input('generar el analizador léxico')
-        file = 'ArchivoPrueba3.atg'
+        file = 'ArchivoPrueba1.atg'
         if file == 'salir':
             break
         try:
@@ -23,7 +23,7 @@ def main():
         if valid_file:
             print(f"Se ha generado el archivo {compiler.name}.py con su analizador léxico!")
             # file = get_main_input('obtener los tokens')
-            file = 'ArchivoPrueba3Entrada.txt'
+            file = 'ArchivoPrueba1Entrada.txt'
             if file == 'salir':
                 break
             try:

@@ -1,4 +1,6 @@
-3DDDDH "hola mundo"	 350.3 	 350   cadena " cadena	" if for while WHILE While "34DH" null null
+3DDDDH "hola mundo"	 350.3 	 350   cadena " rstu	" if for while WHILE While "34DH" null null
 hola
 11111111.2
+rsd8998658tuHOLA
+rstuHOLA
 // Salida: cadena espacioEnBlanco numeroDecimal espacioEnBlanco numero espacioEnBlanco id espacioEnBlanco cadena

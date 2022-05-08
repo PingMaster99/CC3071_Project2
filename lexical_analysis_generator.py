@@ -51,6 +51,7 @@ class Compiler:
                 element.pop(0)
 
                 addition = True
+                prev_expression = ''
 
                 while len(element) > 0:
                     current_expression = element.pop(0)
@@ -79,7 +80,12 @@ class Compiler:
                         else:
                             element_characters -= self.characters[current_expression]
                     elif 'CHR' in current_expression:
-                        if addition:
+                        if prev_expression == '..':
+                            start = int(element_characters[-1]) + 1
+                            stop_inclusive = int(current_expression.replace('CHR(', '').replace(')', '')) + 1
+                            for i in range(start, stop_inclusive):
+                                element_characters += [str(i)]
+                        elif addition:
                             element_characters += [current_expression.replace('CHR(', '').replace(')', '')]
                         else:
                             element_characters -= [current_expression.replace('CHR(', '').replace(')', '')]
@@ -89,6 +95,8 @@ class Compiler:
                     element_characters.sort()
 
                     self.characters[identifier] = element_characters
+                    prev_expression = current_expression
+
 
         elif keyword == 'KEYWORDS':
             for element in data:
@@ -98,6 +106,9 @@ class Compiler:
 
                 if len(element) == 3:
                     identifier, equal, definition = element
+                    if definition.count('"') % 2 != 0 or definition.count('"') == 0:
+                        self.print_error(line, '" characters do not match a keyword definition')
+
                     definition = definition[0: len(definition) - 1].replace('"', "")
                     character_list = []
                     for char in definition:
@@ -317,10 +328,9 @@ def add_character_spacing(line, character):
     while found_index != -1:
         found_index = line.find(character, found_index)
         if line[0:found_index].count('"') % 2 == 0:
-            line = line[:found_index] + f' {character} ' + line[found_index + 1:]
-        if found_index == -1:
-            break
-        found_index += 2
+            line = line.replace(character, f' {character} ')
+        break
+    return line
 
 
 def read_file(filename, compiler):
@@ -337,13 +347,11 @@ def read_file(filename, compiler):
         elif ['KEYWORDS'] == line.split() or ['TOKENS'] == line.split():
             character_mode = False
         if '+' in line and character_mode:
-            add_character_spacing(line, '+')
+            line = add_character_spacing(line, '+')
         if '-' in line and character_mode:
-            add_character_spacing(line, '-')
-        if '..' in line and character_mode:
-            add_character_spacing(line, '..')
+            line = add_character_spacing(line, '-')
 
-        line = line.strip().rstrip('\n').replace('=', ' = ', 1).split()
+        line = line.strip().rstrip('\n').replace('=', ' = ', 1).replace('..', ' .. ').split()
         clean_lines.append(line)
 
     # We can now work with the clean lines
@@ -405,8 +413,6 @@ def read_file_characters(filename):
 
     return characters
 
-# TODO: Make automaton file
-# TODO: make edge cases solvable
 # TODO: Check errors
 
 compiler = Compiler()

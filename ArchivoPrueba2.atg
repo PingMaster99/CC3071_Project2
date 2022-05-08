@@ -10,7 +10,7 @@ tab = CHR(9).
 KEYWORDS
 
 si = "if".
-SI = IF.
+SI = "IF".
 para = "for".
 
 TOKENS
